@@ -227,10 +227,21 @@ UpdatePlayerPaddle:
 
 ; ==============================================================================
 ; AI Opponent Logic
-; Tracks ball Y coordinate with a deadzone to prevent jitter and a max speed.
+; Implements half-court vision horizon (X >= 76) and an 8px deadzone for
+; human-like reaction and beatable difficulty.
 ; ==============================================================================
 UpdateAIPaddle:
-    ; Calculate AI Paddle Center: wAIY + 12
+    ; 1. Direction Check: Only track when ball is moving right toward AI (BallDX > 0)
+    ld a, [wBallDX]
+    bit 7, a                            ; Bit 7 = 1 if BallDX is negative (moving left)
+    jr nz, .aiStationary
+
+    ; 2. Vision Horizon Check: Only track when ball reaches mid-court (X >= 76)
+    ld a, [wBallX]
+    cp AI_VISION_X
+    jr c, .aiStationary                 ; Ball still on player's half -> AI idles
+
+    ; 3. Calculate AI Paddle Center: wAIY + 12
     ld a, [wAIY]
     add a, 12
     ld b, a                             ; B = AI paddle vertical center
@@ -247,7 +258,7 @@ UpdateAIPaddle:
 
     ; Ball is below AI paddle center -> Move DOWN
     sub b                               ; Distance
-    cp 3                                ; Deadzone threshold (3px)
+    cp AI_DEADZONE                      ; Deadzone threshold (8px)
     jr c, .aiStationary                 ; Within deadzone, do not move
 
     ld a, 1
@@ -265,7 +276,7 @@ UpdateAIPaddle:
     ; Ball is above AI paddle center -> Move UP
     ld a, b
     sub c                               ; Distance
-    cp 3                                ; Deadzone threshold (3px)
+    cp AI_DEADZONE                      ; Deadzone threshold (8px)
     jr c, .aiStationary                 ; Within deadzone
 
     ld a, 1

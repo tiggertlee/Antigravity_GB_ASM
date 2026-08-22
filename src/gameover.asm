@@ -6,6 +6,7 @@
 INCLUDE "hardware.inc"
 INCLUDE "memory.inc"
 INCLUDE "graphics.inc"
+INCLUDE "music.inc"
 
 SECTION "GameOverState", ROM0
 
@@ -114,6 +115,18 @@ InitGameOver::
 
     ; Turn LCD display on
     call TurnLCDOn
+
+    ; --------------------------------------------------------------------------
+    ; 5. Start Victory or Defeat Music Track
+    ; --------------------------------------------------------------------------
+    ld a, [wWinner]
+    cp WINNER_PLAYER
+    jr nz, .playLoseMusic
+    call StartMusicWin
+    ret
+
+.playLoseMusic:
+    call StartMusicLose
     ret
 
 ; ------------------------------------------------------------------------------
@@ -121,7 +134,12 @@ InitGameOver::
 ; ------------------------------------------------------------------------------
 UpdateGameOver::
     ; --------------------------------------------------------------------------
-    ; 1. Navigate Menu Cursor (UP / DOWN)
+    ; 1. Advance Game Over Music Engine
+    ; --------------------------------------------------------------------------
+    call UpdateMusic
+
+    ; --------------------------------------------------------------------------
+    ; 2. Navigate Menu Cursor (UP / DOWN)
     ; --------------------------------------------------------------------------
     ld a, [wJoyPressed]
     bit PADB_UP, a

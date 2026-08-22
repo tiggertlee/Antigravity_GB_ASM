@@ -26,6 +26,8 @@ DEF PLAYER_X            EQU 8   ; Left paddle Screen X position
 DEF AI_X                EQU 144 ; Right paddle Screen X position
 DEF PLAYER_SPEED        EQU 2   ; Human paddle movement per frame (pixels)
 DEF AI_SPEED            EQU 1   ; AI paddle movement per frame (capped for fair play)
+DEF AI_VISION_X         EQU 76  ; Mid-court X threshold before AI starts tracking ball
+DEF AI_DEADZONE         EQU 8   ; Vertical deadzone threshold (pixels) to prevent perfect tracking
 
 ; Ball Physical Boundaries & Velocity
 DEF BALL_MIN_Y          EQU 18  ; Top court wall bounce threshold

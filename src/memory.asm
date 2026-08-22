@@ -60,6 +60,10 @@ wRNGSeed::              ds 1        ; Pseudo-random number generator seed
 wMusicPlaying::         ds 1        ; 1 = Music active, 0 = Music stopped
 wMusicTick::            ds 1        ; Speed tick countdown (frames per step)
 wMusicStep::            ds 1        ; Current song step index (0 to 63)
+wMusicSongID::          ds 1        ; Active song identifier (SONG_SPLASH, SONG_WIN, SONG_LOSE)
+wMusicTempo::           ds 1        ; Active song tempo (frames per step)
+wMusicLength::          ds 1        ; Active song length (total steps before looping)
+wMusicSongPtr::         ds 2        ; 16-bit pointer to active song data in ROM
 
 ; ------------------------------------------------------------------------------
 ; High RAM (HRAM) Variables ($FF80 - $FFFE)

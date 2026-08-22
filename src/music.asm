@@ -1,6 +1,9 @@
 ; ==============================================================================
-; music.asm - Chiptune Music Driver & Splash Screen "Neon Surge" Electro Punk Track
-; Handles step-sequencing, channel synthesis, and tempo synchronization.
+; music.asm - Multi-Track Chiptune Audio Driver & Song Data
+; Features:
+; - "Neon Surge": Electro Punk Title Theme (Splash Screen)
+; - "Victory Bounce": Happy Skipping Major Anthem (You Win Screen)
+; - "Death March": Slow Melancholic Dirge (You Lose Screen)
 ; ==============================================================================
 
 INCLUDE "hardware.inc"
@@ -11,9 +14,66 @@ SECTION "MusicEngine", ROM0
 
 ; ------------------------------------------------------------------------------
 ; StartMusicSplash - Initializes and starts playing the Splash screen track
+; Tempo: 7 frames/step (~128.5 BPM), 64 steps
 ; ------------------------------------------------------------------------------
 StartMusicSplash::
-    ; Reset playback state
+    ld a, SONG_SPLASH
+    ld [wMusicSongID], a
+    ld a, 7
+    ld [wMusicTempo], a
+    ld a, 64
+    ld [wMusicLength], a
+    ld hl, SongData_Splash
+    ld a, l
+    ld [wMusicSongPtr + 0], a
+    ld a, h
+    ld [wMusicSongPtr + 1], a
+    xor a
+    ld [wMusicStep], a
+    ld a, 1
+    ld [wMusicTick], a                  ; Trigger immediately on first frame
+    ld [wMusicPlaying], a
+    ret
+
+; ------------------------------------------------------------------------------
+; StartMusicWin - Initializes and starts playing the You Win victory track
+; Tempo: 8 frames/step (~112.5 BPM), 64 steps
+; ------------------------------------------------------------------------------
+StartMusicWin::
+    ld a, SONG_WIN
+    ld [wMusicSongID], a
+    ld a, 8
+    ld [wMusicTempo], a
+    ld a, 64
+    ld [wMusicLength], a
+    ld hl, SongData_Win
+    ld a, l
+    ld [wMusicSongPtr + 0], a
+    ld a, h
+    ld [wMusicSongPtr + 1], a
+    xor a
+    ld [wMusicStep], a
+    ld a, 1
+    ld [wMusicTick], a                  ; Trigger immediately on first frame
+    ld [wMusicPlaying], a
+    ret
+
+; ------------------------------------------------------------------------------
+; StartMusicLose - Initializes and starts playing the You Lose death march track
+; Tempo: 14 frames/step (~53.5 BPM), 64 steps
+; ------------------------------------------------------------------------------
+StartMusicLose::
+    ld a, SONG_LOSE
+    ld [wMusicSongID], a
+    ld a, 14
+    ld [wMusicTempo], a
+    ld a, 64
+    ld [wMusicLength], a
+    ld hl, SongData_Lose
+    ld a, l
+    ld [wMusicSongPtr + 0], a
+    ld a, h
+    ld [wMusicSongPtr + 1], a
     xor a
     ld [wMusicStep], a
     ld a, 1
@@ -39,7 +99,7 @@ StopMusic::
     ret
 
 ; ------------------------------------------------------------------------------
-; UpdateMusic - Advances song timer and dispatches notes/drums per frame
+; UpdateMusic - Advances active song timer and dispatches notes/drums per frame
 ; ------------------------------------------------------------------------------
 UpdateMusic::
     ; Check if music is actively playing
@@ -53,13 +113,13 @@ UpdateMusic::
     ld [wMusicTick], a
     ret nz                              ; Not yet time for next step
 
-    ; Reset step tick countdown
-    ld a, MUSIC_TEMPO_FRAMES
+    ; Reset step tick countdown to active song tempo
+    ld a, [wMusicTempo]
     ld [wMusicTick], a
 
     ; --------------------------------------------------------------------------
-    ; Fetch Step Data from Song Table
-    ; Step structure: [DW Ch1_Freq, DW Ch2_Freq, DB Drum_Type] (5 bytes per step)
+    ; Fetch Step Data from Active Song Pointer
+    ; Step record: [DW Ch1_Freq, DW Ch2_Freq, DB Drum_Type] (5 bytes per step)
     ; --------------------------------------------------------------------------
     ld a, [wMusicStep]
     ld l, a
@@ -73,8 +133,11 @@ UpdateMusic::
     adc a, 0
     ld h, a                             ; HL = step * 5
 
-    ld de, SongData_Splash
-    add hl, de                          ; HL points to current step record
+    ld a, [wMusicSongPtr + 0]
+    ld e, a
+    ld a, [wMusicSongPtr + 1]
+    ld d, a
+    add hl, de                          ; HL points to current step record in ROM
 
     ; --------------------------------------------------------------------------
     ; 1. Play Channel 1 Note (Lead Synth / Arpeggio)
@@ -183,164 +246,256 @@ UpdateMusic::
 
 .advanceStep:
     ; --------------------------------------------------------------------------
-    ; Advance Step Counter (Loop at 64 steps)
+    ; Advance Step Counter (Loop at wMusicLength)
     ; --------------------------------------------------------------------------
     ld a, [wMusicStep]
     inc a
-    cp MUSIC_STEP_COUNT
-    jr c, .saveStep
-    xor a                               ; Loop back to step 0
-.saveStep:
+    ld b, a
+    ld a, [wMusicLength]
+    cp b
+    jr z, .loopSong
+    ld a, b
+    ld [wMusicStep], a
+    ret
+
+.loopSong:
+    xor a
     ld [wMusicStep], a
     ret
 
 ; ==============================================================================
-; Electro Punk Song Data: "Neon Surge"
+; 1. Title Theme: "Neon Surge" (Electro Punk in A Minor)
 ; 64 Steps (4 Bars), Format: [DW Ch1_Lead, DW Ch2_Bass, DB Drum_Type]
 ; ==============================================================================
-SECTION "MusicSongData", ROM0
+SECTION "MusicSongData_Splash", ROM0
 
 SongData_Splash:
-    ; --------------------------------------------------------------------------
-    ; BAR 1: A Minor Driving Intro Hook
-    ; --------------------------------------------------------------------------
-    ; Step 00 - Beat 1.1
+    ; --- BAR 1: A Minor Driving Intro Hook ---
     dw NOTE_A4,     NOTE_A2,    DRUM_KICK
-    ; Step 01 - Beat 1.2
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 02 - Beat 1.3
     dw NOTE_C5,     NOTE_A3,    DRUM_HIHAT
-    ; Step 03 - Beat 1.4
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 04 - Beat 2.1
     dw NOTE_E5,     NOTE_A2,    DRUM_SNARE
-    ; Step 05 - Beat 2.2
     dw NOTE_D5,     NOTE_REST,  DRUM_NONE
-    ; Step 06 - Beat 2.3
     dw NOTE_C5,     NOTE_A3,    DRUM_HIHAT
-    ; Step 07 - Beat 2.4
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 08 - Beat 3.1
     dw NOTE_A4,     NOTE_A2,    DRUM_KICK
-    ; Step 09 - Beat 3.2
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 10 - Beat 3.3
     dw NOTE_C5,     NOTE_A3,    DRUM_KICK
-    ; Step 11 - Beat 3.4
     dw NOTE_D5,     NOTE_REST,  DRUM_NONE
-    ; Step 12 - Beat 4.1
     dw NOTE_E5,     NOTE_A2,    DRUM_SNARE
-    ; Step 13 - Beat 4.2
     dw NOTE_G5,     NOTE_REST,  DRUM_NONE
-    ; Step 14 - Beat 4.3
     dw NOTE_E5,     NOTE_A3,    DRUM_OPENHAT
-    ; Step 15 - Beat 4.4
     dw NOTE_D5,     NOTE_REST,  DRUM_NONE
 
-    ; --------------------------------------------------------------------------
-    ; BAR 2: F Major (Steps 16-23) -> G Major (Steps 24-31) Power Chord Pulse
-    ; --------------------------------------------------------------------------
-    ; Step 16 - Beat 1.1 (F Major)
+    ; --- BAR 2: F Major (16-23) -> G Major (24-31) Power Chords ---
     dw NOTE_F4,     NOTE_F2,    DRUM_KICK
-    ; Step 17 - Beat 1.2
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 18 - Beat 1.3
     dw NOTE_A4,     NOTE_F3,    DRUM_HIHAT
-    ; Step 19 - Beat 1.4
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 20 - Beat 2.1
     dw NOTE_C5,     NOTE_F2,    DRUM_SNARE
-    ; Step 21 - Beat 2.2
     dw NOTE_F5,     NOTE_REST,  DRUM_NONE
-    ; Step 22 - Beat 2.3
     dw NOTE_E5,     NOTE_F3,    DRUM_HIHAT
-    ; Step 23 - Beat 2.4
     dw NOTE_D5,     NOTE_REST,  DRUM_NONE
-    ; Step 24 - Beat 3.1 (G Major)
     dw NOTE_G4,     NOTE_G2,    DRUM_KICK
-    ; Step 25 - Beat 3.2
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 26 - Beat 3.3
     dw NOTE_B4,     NOTE_G3,    DRUM_KICK
-    ; Step 27 - Beat 3.4
     dw NOTE_D5,     NOTE_REST,  DRUM_NONE
-    ; Step 28 - Beat 4.1
     dw NOTE_G5,     NOTE_G2,    DRUM_SNARE
-    ; Step 29 - Beat 4.2
     dw NOTE_F5,     NOTE_REST,  DRUM_NONE
-    ; Step 30 - Beat 4.3
     dw NOTE_E5,     NOTE_G3,    DRUM_OPENHAT
-    ; Step 31 - Beat 4.4
     dw NOTE_D5,     NOTE_REST,  DRUM_NONE
 
-    ; --------------------------------------------------------------------------
-    ; BAR 3: A Minor High Lead Riff & Octave Lift
-    ; --------------------------------------------------------------------------
-    ; Step 32 - Beat 1.1
+    ; --- BAR 3: A Minor High Lead Riff ---
     dw NOTE_A5,     NOTE_A2,    DRUM_KICK
-    ; Step 33 - Beat 1.2
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 34 - Beat 1.3
     dw NOTE_G5,     NOTE_A3,    DRUM_HIHAT
-    ; Step 35 - Beat 1.4
     dw NOTE_E5,     NOTE_REST,  DRUM_NONE
-    ; Step 36 - Beat 2.1
     dw NOTE_G5,     NOTE_A2,    DRUM_SNARE
-    ; Step 37 - Beat 2.2
     dw NOTE_A5,     NOTE_REST,  DRUM_NONE
-    ; Step 38 - Beat 2.3
     dw NOTE_C6,     NOTE_A3,    DRUM_HIHAT
-    ; Step 39 - Beat 2.4
     dw NOTE_B5,     NOTE_REST,  DRUM_NONE
-    ; Step 40 - Beat 3.1
     dw NOTE_A5,     NOTE_A2,    DRUM_KICK
-    ; Step 41 - Beat 3.2
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 42 - Beat 3.3
     dw NOTE_G5,     NOTE_A3,    DRUM_HIHAT
-    ; Step 43 - Beat 3.4
     dw NOTE_E5,     NOTE_REST,  DRUM_NONE
-    ; Step 44 - Beat 4.1
     dw NOTE_D5,     NOTE_A2,    DRUM_SNARE
-    ; Step 45 - Beat 4.2
     dw NOTE_E5,     NOTE_REST,  DRUM_NONE
-    ; Step 46 - Beat 4.3
     dw NOTE_G5,     NOTE_A3,    DRUM_OPENHAT
-    ; Step 47 - Beat 4.4
     dw NOTE_E5,     NOTE_REST,  DRUM_NONE
 
-    ; --------------------------------------------------------------------------
-    ; BAR 4: D Minor (Steps 48-55) -> E Major Turnaround & Snare Fill (Steps 56-63)
-    ; --------------------------------------------------------------------------
-    ; Step 48 - Beat 1.1 (D Minor)
+    ; --- BAR 4: D Minor (48-55) -> E Major Turnaround (56-63) ---
     dw NOTE_D5,     NOTE_D3,    DRUM_KICK
-    ; Step 49 - Beat 1.2
     dw NOTE_REST,   NOTE_REST,  DRUM_NONE
-    ; Step 50 - Beat 1.3
     dw NOTE_F5,     NOTE_D3,    DRUM_HIHAT
-    ; Step 51 - Beat 1.4
     dw NOTE_A5,     NOTE_REST,  DRUM_NONE
-    ; Step 52 - Beat 2.1
     dw NOTE_F5,     NOTE_D3,    DRUM_SNARE
-    ; Step 53 - Beat 2.2
     dw NOTE_D5,     NOTE_REST,  DRUM_NONE
-    ; Step 54 - Beat 2.3
     dw NOTE_F5,     NOTE_D3,    DRUM_HIHAT
-    ; Step 55 - Beat 2.4
     dw NOTE_E5,     NOTE_REST,  DRUM_NONE
-    ; Step 56 - Beat 3.1 (E Major Turnaround & Snare Fill)
     dw NOTE_E5,     NOTE_E3,    DRUM_SNARE
-    ; Step 57 - Beat 3.2
     dw NOTE_GS5,    NOTE_REST,  DRUM_NONE
-    ; Step 58 - Beat 3.3
     dw NOTE_B5,     NOTE_E3,    DRUM_SNARE
-    ; Step 59 - Beat 3.4
     dw NOTE_GS5,    NOTE_REST,  DRUM_NONE
-    ; Step 60 - Beat 4.1
     dw NOTE_E5,     NOTE_E2,    DRUM_SNARE
-    ; Step 61 - Beat 4.2
     dw NOTE_D5,     NOTE_REST,  DRUM_SNARE
-    ; Step 62 - Beat 4.3
     dw NOTE_C5,     NOTE_E2,    DRUM_SNARE
-    ; Step 63 - Beat 4.4
     dw NOTE_B4,     NOTE_REST,  DRUM_OPENHAT
+
+; ==============================================================================
+; 2. Victory Theme: "Victory Bounce" (Happy Skipping Major in C)
+; 64 Steps (4 Bars), Format: [DW Ch1_Lead, DW Ch2_Bass, DB Drum_Type]
+; ==============================================================================
+SECTION "MusicSongData_Win", ROM0
+
+SongData_Win:
+    ; --- BAR 1: C Major Joyful Fanfare & Bouncy Groove ---
+    dw NOTE_C5,     NOTE_C3,    DRUM_KICK
+    dw NOTE_E5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_G5,     NOTE_G3,    DRUM_HIHAT
+    dw NOTE_C6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_G5,     NOTE_E3,    DRUM_SNARE
+    dw NOTE_E5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_G5,     NOTE_G3,    DRUM_HIHAT
+    dw NOTE_C6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_E6,     NOTE_C3,    DRUM_KICK
+    dw NOTE_D6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_C6,     NOTE_G3,    DRUM_KICK
+    dw NOTE_G5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_A5,     NOTE_E3,    DRUM_SNARE
+    dw NOTE_G5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_E5,     NOTE_G3,    DRUM_OPENHAT
+    dw NOTE_D5,     NOTE_REST,  DRUM_NONE
+
+    ; --- BAR 2: F Major (16-23) -> G Major (24-31) Skipping Lift ---
+    dw NOTE_A5,     NOTE_F3,    DRUM_KICK
+    dw NOTE_C6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_A5,     NOTE_C4,    DRUM_HIHAT
+    dw NOTE_F5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_A5,     NOTE_A3,    DRUM_SNARE
+    dw NOTE_C6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_B5,     NOTE_C4,    DRUM_HIHAT
+    dw NOTE_A5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_B5,     NOTE_G3,    DRUM_KICK
+    dw NOTE_D6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_B5,     NOTE_D4,    DRUM_KICK
+    dw NOTE_G5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_B5,     NOTE_B3,    DRUM_SNARE
+    dw NOTE_C6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_D6,     NOTE_D4,    DRUM_OPENHAT
+    dw NOTE_E6,     NOTE_REST,  DRUM_NONE
+
+    ; --- BAR 3: A Minor -> E Minor Melodic Bounce ---
+    dw NOTE_C6,     NOTE_A3,    DRUM_KICK
+    dw NOTE_E6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_D6,     NOTE_E4,    DRUM_HIHAT
+    dw NOTE_C6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_B5,     NOTE_C4,    DRUM_SNARE
+    dw NOTE_A5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_G5,     NOTE_E4,    DRUM_HIHAT
+    dw NOTE_A5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_B5,     NOTE_E3,    DRUM_KICK
+    dw NOTE_D6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_C6,     NOTE_B3,    DRUM_HIHAT
+    dw NOTE_B5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_A5,     NOTE_G3,    DRUM_SNARE
+    dw NOTE_G5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_F5,     NOTE_B3,    DRUM_OPENHAT
+    dw NOTE_E5,     NOTE_REST,  DRUM_NONE
+
+    ; --- BAR 4: F -> G7 -> C Major Victory Resolve & Fill ---
+    dw NOTE_F5,     NOTE_F3,    DRUM_KICK
+    dw NOTE_A5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_C6,     NOTE_A3,    DRUM_HIHAT
+    dw NOTE_A5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_G5,     NOTE_G3,    DRUM_SNARE
+    dw NOTE_B5,     NOTE_REST,  DRUM_NONE
+    dw NOTE_D6,     NOTE_B3,    DRUM_HIHAT
+    dw NOTE_F6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_E6,     NOTE_C4,    DRUM_SNARE
+    dw NOTE_D6,     NOTE_REST,  DRUM_NONE
+    dw NOTE_C6,     NOTE_G3,    DRUM_SNARE
+    dw NOTE_G5,     NOTE_REST,  DRUM_SNARE
+    dw NOTE_E5,     NOTE_E3,    DRUM_SNARE
+    dw NOTE_G5,     NOTE_REST,  DRUM_SNARE
+    dw NOTE_C6,     NOTE_C3,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_OPENHAT
+
+; ==============================================================================
+; 3. Defeat Theme: "Death March" (Slow Melancholic Dirge in C Minor)
+; 64 Steps (4 Bars), Format: [DW Ch1_Lead, DW Ch2_Bass, DB Drum_Type]
+; ==============================================================================
+SECTION "MusicSongData_Lose", ROM0
+
+SongData_Lose:
+    ; --- BAR 1: C Minor Heavy Funeral Dirge ---
+    dw NOTE_C4,     NOTE_C2,    DRUM_KICK
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_C4,     NOTE_C2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_C4,     NOTE_C2,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_DS4,    NOTE_C2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_D4,     NOTE_C2,    DRUM_KICK
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_C4,     NOTE_C2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_B3,     NOTE_G2,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_C4,     NOTE_G2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+
+    ; --- BAR 2: Ab Major (16-23) -> G Minor (24-31) Descending Dirge ---
+    dw NOTE_DS4,    NOTE_GS2,   DRUM_KICK
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_DS4,    NOTE_GS2,   DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_F4,     NOTE_GS2,   DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_DS4,    NOTE_GS2,   DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_D4,     NOTE_G2,    DRUM_KICK
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_D4,     NOTE_G2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_C4,     NOTE_C2,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_B3,     NOTE_G2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+
+    ; --- BAR 3: F Minor -> C Minor Mournful Lament ---
+    dw NOTE_F4,     NOTE_F2,    DRUM_KICK
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_GS4,    NOTE_F2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_G4,     NOTE_F2,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_F4,     NOTE_F2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_DS4,    NOTE_C2,    DRUM_KICK
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_F4,     NOTE_C2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_DS4,    NOTE_C2,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_D4,     NOTE_C2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+
+    ; --- BAR 4: G7 -> C Minor Final Dirge Cadence ---
+    dw NOTE_D4,     NOTE_G2,    DRUM_KICK
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_F4,     NOTE_G2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_DS4,    NOTE_G2,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_D4,     NOTE_G2,    DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_C4,     NOTE_C2,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_REST,   NOTE_G2,    DRUM_SNARE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_B3,     NOTE_C2,    DRUM_KICK
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE
+    dw NOTE_C4,     NOTE_REST,  DRUM_NONE
+    dw NOTE_REST,   NOTE_REST,  DRUM_NONE

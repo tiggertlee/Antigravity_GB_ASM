@@ -7,7 +7,7 @@ An authentic Nintendo Game Boy (DMG/CGB) Pong game written in pure SM83 assembly
 ## 🎮 Features & Technical Highlights
 
 - **State Machine Architecture**: Clean separation between Splash Screen, In-Game Gameplay, and Game Over / Victory states.
-- **Single-Player vs AI**: Smooth player paddle controls paired with a reactive AI opponent.
+- **Single-Player vs Tuned AI**: Responsive human paddle controls paired with a beatable AI opponent featuring a mid-court vision horizon (`X >= 76`) and an 8px deadzone for natural, human-like reaction dynamics.
 - **Dynamic Physics & Kinematics**:
   - Base velocity floor (1 px/frame) ensuring the ball never moves slower than baseline.
   - Dynamic paddle momentum: moving paddles accelerate returns (+1 speed), while stationary paddle blocks dampen and slow down the ball (-1 speed).
@@ -19,8 +19,10 @@ An authentic Nintendo Game Boy (DMG/CGB) Pong game written in pure SM83 assembly
   - 2BPP tile data and background tilemap management using `rgbgfx`.
   - VBlank interrupt-driven rendering, joypad polling, and HUD updates.
   - Memory-safe WRAM variable layout and VRAM access routines.
-- **APU Sound Effects & Music System**:
+- **APU Sound Effects & Multi-Track Music System**:
   - **"Neon Surge" Title Soundtrack**: An energetic, medium-tempo electro punk chiptune track in A minor (128.5 BPM) featuring pulse lead riffs (Ch1), a driving 8th/16th pumping bassline (Ch2), and punchy noise percussion (Ch4: kick, snare, hi-hats).
+  - **"Victory Bounce" Win Soundtrack**: An upbeat, happy skipping victory chiptune in C Major (112.5 BPM) with bouncing arpeggios, walking basslines, and celebratory snare rolls.
+  - **"Death March" Lose Soundtrack**: A slow, heavy funeral dirge in C minor (53.5 BPM) with brooding, descending bass pulses and melancholic lament melodies.
   - Crisp high-pitch pulse beep on paddle deflection (Channel 1 ~880 Hz).
   - Mellow low-pitch pulse boop on wall reflections (Channel 1 ~260 Hz).
   - Harsh 7-bit LFSR noise buzzer on out-of-bounds goals (Channel 4).
