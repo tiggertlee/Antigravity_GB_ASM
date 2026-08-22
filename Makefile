@@ -30,7 +30,7 @@ FIXFLAGS        := -v -p 0xFF -t "AIPONGGB"
 GFXFLAGS        := -u
 
 # Source assembly files and object targets
-SRCS            := $(addprefix $(SRC_DIR)/, memory.asm graphics.asm main.asm splash.asm game.asm gameover.asm sound.asm)
+SRCS            := $(addprefix $(SRC_DIR)/, memory.asm graphics.asm main.asm splash.asm game.asm gameover.asm sound.asm music.asm)
 OBJS            := $(patsubst $(SRC_DIR)/%.asm, $(BUILD_DIR)/%.o, $(SRCS))
 INCS            := $(wildcard $(SRC_DIR)/*.inc)
 

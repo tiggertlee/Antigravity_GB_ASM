@@ -53,6 +53,11 @@ wScoreUpdateFlag::      ds 1        ; Set to 1 to signal VBlank score redraw
 wMenuSelection::        ds 1        ; Selected option in Game Over menu (0 or 1)
 wRNGSeed::              ds 1        ; Pseudo-random number generator seed
 
+; Music Player State
+wMusicPlaying::         ds 1        ; 1 = Music active, 0 = Music stopped
+wMusicTick::            ds 1        ; Speed tick countdown (frames per step)
+wMusicStep::            ds 1        ; Current song step index (0 to 63)
+
 ; ------------------------------------------------------------------------------
 ; High RAM (HRAM) Variables ($FF80 - $FFFE)
 ; ------------------------------------------------------------------------------

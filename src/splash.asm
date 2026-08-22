@@ -6,6 +6,7 @@
 INCLUDE "hardware.inc"
 INCLUDE "memory.inc"
 INCLUDE "graphics.inc"
+INCLUDE "music.inc"
 
 SECTION "SplashState", ROM0
 
@@ -58,6 +59,11 @@ InitSplash::
 
     ; Turn LCD display on
     call TurnLCDOn
+
+    ; --------------------------------------------------------------------------
+    ; 5. Start Splash Screen Music Track
+    ; --------------------------------------------------------------------------
+    call StartMusicSplash
     ret
 
 ; ------------------------------------------------------------------------------
@@ -66,7 +72,12 @@ InitSplash::
 ; ------------------------------------------------------------------------------
 UpdateSplash::
     ; --------------------------------------------------------------------------
-    ; Flashing Prompt Animation: Toggle visibility on bit 5 (~0.5s period)
+    ; 1. Advance Splash Screen Music Engine
+    ; --------------------------------------------------------------------------
+    call UpdateMusic
+
+    ; --------------------------------------------------------------------------
+    ; 2. Flashing Prompt Animation: Toggle visibility on bit 5 (~0.5s period)
     ; With subtle 2-pixel bobbing pulse when visible
     ; --------------------------------------------------------------------------
     ld a, [wFrameCounter]

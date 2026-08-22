@@ -17,7 +17,8 @@ An authentic Nintendo Game Boy (DMG/CGB) Pong game written in pure SM83 assembly
   - 2BPP tile data and background tilemap management using `rgbgfx`.
   - VBlank interrupt-driven rendering, joypad polling, and HUD updates.
   - Memory-safe WRAM variable layout and VRAM access routines.
-- **APU Sound Effects System**:
+- **APU Sound Effects & Music System**:
+  - **"Neon Surge" Title Soundtrack**: An energetic, medium-tempo electro punk chiptune track in A minor (128.5 BPM) featuring pulse lead riffs (Ch1), a driving 8th/16th pumping bassline (Ch2), and punchy noise percussion (Ch4: kick, snare, hi-hats).
   - Crisp high-pitch pulse beep on paddle deflection (Channel 1 ~880 Hz).
   - Mellow low-pitch pulse boop on wall reflections (Channel 1 ~260 Hz).
   - Harsh 7-bit LFSR noise buzzer on out-of-bounds goals (Channel 4).
@@ -43,6 +44,8 @@ Antigravity_GB_ASM/
 │   ├── graphics.inc       # Tile indices, palette constants, and sprite equates
 │   ├── sound.asm          # APU audio driver and sound effect routines
 │   ├── sound.inc          # Sound system equates and pitch constants
+│   ├── music.asm          # Chiptune music player and "Neon Surge" song tables
+│   ├── music.inc          # Note frequencies, drum equates, and music declarations
 │   ├── memory.asm         # Memory zeroing and OAM DMA routine loader
 │   ├── memory.inc         # WRAM and HRAM variable declarations
 │   └── hardware.inc       # Standard Game Boy hardware register definitions

@@ -8,6 +8,7 @@ INCLUDE "hardware.inc"
 INCLUDE "memory.inc"
 INCLUDE "graphics.inc"
 INCLUDE "sound.inc"
+INCLUDE "music.inc"
 
 SECTION "GameStateRoutines", ROM0
 
@@ -15,6 +16,9 @@ SECTION "GameStateRoutines", ROM0
 ; InitGame - Initializes court, scores, physics, and paddle positions
 ; ------------------------------------------------------------------------------
 InitGame::
+    ; Stop title music when entering game
+    call StopMusic
+
     ; Safely shut down LCD to draw background court & score HUD
     call TurnLCDOff
 
