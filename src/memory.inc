@@ -27,13 +27,16 @@ DEF AI_X                EQU 144 ; Right paddle Screen X position
 DEF PLAYER_SPEED        EQU 2   ; Human paddle movement per frame (pixels)
 DEF AI_SPEED            EQU 1   ; AI paddle movement per frame (capped for fair play)
 
-; Ball Physical Boundaries
+; Ball Physical Boundaries & Velocity
 DEF BALL_MIN_Y          EQU 18  ; Top court wall bounce threshold
 DEF BALL_MAX_Y          EQU 134 ; Bottom court wall bounce threshold
 DEF BALL_GOAL_LEFT      EQU 6   ; Ball X threshold where AI scores
 DEF BALL_GOAL_RIGHT     EQU 148 ; Ball X threshold where Player scores
 DEF BALL_INIT_X         EQU 76  ; Center court X
 DEF BALL_INIT_Y         EQU 72  ; Center court Y
+DEF BALL_BASE_SPEED     EQU 1   ; Base minimum ball velocity (pixels/frame)
+DEF BALL_MAX_SPEED      EQU 3   ; Maximum ball velocity cap (pixels/frame)
+DEF WALL_BOOST_DIST     EQU 20  ; Distance threshold (pixels) from paddle for wall boost
 
 ; Winner Identifiers
 DEF WINNER_PLAYER       EQU 0

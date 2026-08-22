@@ -35,12 +35,15 @@ wJoyPrev::              ds 1        ; Previous frame's held buttons for edge cal
 ; Paddle Coordinates (Screen Y in pixels)
 wPlayerY::              ds 1        ; Human player paddle Y position (Left)
 wAIY::                  ds 1        ; AI opponent paddle Y position (Right)
+wPlayerMoving::         ds 1        ; 1 = Player paddle moved this frame, 0 = stationary
+wAIMoving::             ds 1        ; 1 = AI paddle moved this frame, 0 = stationary
 
 ; Ball Kinematics
 wBallX::                ds 1        ; Ball Screen X position
 wBallY::                ds 1        ; Ball Screen Y position
-wBallDX::               ds 1        ; Ball horizontal velocity (-2, -1, 1, 2)
+wBallDX::               ds 1        ; Ball horizontal velocity (-3..-1, 1..3)
 wBallDY::               ds 1        ; Ball vertical velocity (-2, -1, 0, 1, 2)
+wBallSpeed::            ds 1        ; Current ball velocity magnitude (1..BALL_MAX_SPEED)
 wServeTimer::           ds 1        ; Delay countdown before ball launches
 
 ; Match Scoring & Results

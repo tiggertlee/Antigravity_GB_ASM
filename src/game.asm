@@ -50,12 +50,17 @@ InitGame::
     ld [wBallX], a
     ld a, BALL_INIT_Y
     ld [wBallY], a
+    ld a, BALL_BASE_SPEED
+    ld [wBallSpeed], a
     ld a, 1
     ld [wBallDX], a                     ; Initial serve moving right toward AI
     ld a, -1
     ld [wBallDY], a                     ; Slight upward angle
     ld a, SERVE_DELAY_FRAMES
     ld [wServeTimer], a                 ; Countdown before launch
+    xor a
+    ld [wPlayerMoving], a
+    ld [wAIMoving], a
 
     ; --------------------------------------------------------------------------
     ; 2. Draw Score HUD on Row 0
@@ -188,6 +193,8 @@ UpdatePlayerPaddle:
     jr z, .checkDown
 
     ; Move Player paddle UP
+    ld a, 1
+    ld [wPlayerMoving], a
     ld a, [wPlayerY]
     sub PLAYER_SPEED
     cp PADDLE_MIN_Y
@@ -199,9 +206,11 @@ UpdatePlayerPaddle:
 
 .checkDown:
     bit PADB_DOWN, a
-    ret z                               ; Neither UP nor DOWN held
+    jr z, .playerStationary
 
     ; Move Player paddle DOWN
+    ld a, 1
+    ld [wPlayerMoving], a
     ld a, [wPlayerY]
     add a, PLAYER_SPEED
     cp PADDLE_MAX_Y + 1
@@ -209,6 +218,11 @@ UpdatePlayerPaddle:
     ld a, PADDLE_MAX_Y
 .savePlayerYDown:
     ld [wPlayerY], a
+    ret
+
+.playerStationary:
+    xor a
+    ld [wPlayerMoving], a
     ret
 
 ; ==============================================================================
@@ -234,8 +248,10 @@ UpdateAIPaddle:
     ; Ball is below AI paddle center -> Move DOWN
     sub b                               ; Distance
     cp 3                                ; Deadzone threshold (3px)
-    ret c                               ; Within deadzone, do not move
+    jr c, .aiStationary                 ; Within deadzone, do not move
 
+    ld a, 1
+    ld [wAIMoving], a
     ld a, [wAIY]
     add a, AI_SPEED
     cp PADDLE_MAX_Y + 1
@@ -250,8 +266,10 @@ UpdateAIPaddle:
     ld a, b
     sub c                               ; Distance
     cp 3                                ; Deadzone threshold (3px)
-    ret c                               ; Within deadzone
+    jr c, .aiStationary                 ; Within deadzone
 
+    ld a, 1
+    ld [wAIMoving], a
     ld a, [wAIY]
     sub AI_SPEED
     cp PADDLE_MIN_Y
@@ -259,6 +277,11 @@ UpdateAIPaddle:
     ld a, PADDLE_MIN_Y
 .saveAIYUp:
     ld [wAIY], a
+    ret
+
+.aiStationary:
+    xor a
+    ld [wAIMoving], a
     ret
 
 ; ==============================================================================
@@ -299,7 +322,7 @@ UpdateBallPhysics:
     inc a
     ld [wBallDY], a
     call PlaySoundWall
-    jr .checkPaddles
+    jr .checkWallSpeedBoost
 
 .checkBottomWall:
     cp BALL_MAX_Y + 1
@@ -314,6 +337,44 @@ UpdateBallPhysics:
     inc a
     ld [wBallDY], a
     call PlaySoundWall
+
+.checkWallSpeedBoost:
+    ; Check if wall bounce occurred within 20 pixels of the paddle it came from
+    ld a, [wBallDX]
+    bit 7, a                            ; Is BallDX negative (moving left towards player)?
+    jr nz, .checkWallBoostAI
+
+    ; Ball moving right (rebounded from Player paddle at X=16)
+    ; Threshold: Ball X <= PLAYER_X + 8 + WALL_BOOST_DIST (16 + 20 = 36)
+    ld a, [wBallX]
+    cp (PLAYER_X + 8 + WALL_BOOST_DIST) + 1
+    jr nc, .checkPaddles
+
+    ; Boost speed!
+    ld a, [wBallSpeed]
+    cp BALL_MAX_SPEED
+    jr nc, .checkPaddles
+    inc a
+    ld [wBallSpeed], a
+    ld [wBallDX], a                     ; Re-apply DX = +wBallSpeed
+    jr .checkPaddles
+
+.checkWallBoostAI:
+    ; Ball moving left (rebounded from AI paddle at X=136)
+    ; Threshold: Ball X >= AI_X - 8 - WALL_BOOST_DIST (136 - 20 = 116)
+    ld a, [wBallX]
+    cp (AI_X - 8 - WALL_BOOST_DIST)
+    jr c, .checkPaddles
+
+    ; Boost speed!
+    ld a, [wBallSpeed]
+    cp BALL_MAX_SPEED
+    jr nc, .checkPaddles
+    inc a
+    ld [wBallSpeed], a
+    cpl
+    inc a
+    ld [wBallDX], a                     ; Re-apply DX = -wBallSpeed
 
 .checkPaddles:
     ; --------------------------------------------------------------------------
@@ -349,8 +410,33 @@ UpdateBallPhysics:
     call PlaySoundPaddle
     ld a, AI_X - 8
     ld [wBallX], a                      ; Snap ball to paddle front
-    ld a, -1
-    ld [wBallDX], a                     ; Rebound left
+
+    ; Adjust speed based on AI paddle movement
+    ld a, [wAIMoving]
+    and a
+    jr z, .aiPaddleStationary
+
+    ; Moving paddle -> Increase speed
+    ld a, [wBallSpeed]
+    cp BALL_MAX_SPEED
+    jr nc, .aiSpeedDone
+    inc a
+    ld [wBallSpeed], a
+    jr .aiSpeedDone
+
+.aiPaddleStationary:
+    ; Stationary paddle -> Slow down (min BALL_BASE_SPEED)
+    ld a, [wBallSpeed]
+    cp BALL_BASE_SPEED + 1
+    jr c, .aiSpeedDone
+    dec a
+    ld [wBallSpeed], a
+
+.aiSpeedDone:
+    ld a, [wBallSpeed]
+    cpl
+    inc a
+    ld [wBallDX], a                     ; Rebound left with updated velocity
 
     ; Calculate deflection angle based on hit location relative to paddle
     ld a, [wBallY]
@@ -406,8 +492,31 @@ UpdateBallPhysics:
     call PlaySoundPaddle
     ld a, PLAYER_X + 8
     ld [wBallX], a                      ; Snap ball to paddle front
-    ld a, 1
-    ld [wBallDX], a                     ; Rebound right
+
+    ; Adjust speed based on Player paddle movement
+    ld a, [wPlayerMoving]
+    and a
+    jr z, .playerPaddleStationary
+
+    ; Moving paddle -> Increase speed
+    ld a, [wBallSpeed]
+    cp BALL_MAX_SPEED
+    jr nc, .playerSpeedDone
+    inc a
+    ld [wBallSpeed], a
+    jr .playerSpeedDone
+
+.playerPaddleStationary:
+    ; Stationary paddle -> Slow down (min BALL_BASE_SPEED)
+    ld a, [wBallSpeed]
+    cp BALL_BASE_SPEED + 1
+    jr c, .playerSpeedDone
+    dec a
+    ld [wBallSpeed], a
+
+.playerSpeedDone:
+    ld a, [wBallSpeed]
+    ld [wBallDX], a                     ; Rebound right with updated velocity
 
     ; Calculate deflection angle based on hit location relative to paddle
     ld a, [wBallY]
@@ -463,6 +572,8 @@ UpdateBallPhysics:
     ld [wBallX], a
     ld a, BALL_INIT_Y
     ld [wBallY], a
+    ld a, BALL_BASE_SPEED
+    ld [wBallSpeed], a
     ld a, -1                            ; Ball serves left
     ld [wBallDX], a
     ld a, 1
@@ -505,6 +616,8 @@ UpdateBallPhysics:
     ld [wBallX], a
     ld a, BALL_INIT_Y
     ld [wBallY], a
+    ld a, BALL_BASE_SPEED
+    ld [wBallSpeed], a
     ld a, 1                             ; Ball serves right
     ld [wBallDX], a
     ld a, -1

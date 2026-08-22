@@ -8,10 +8,12 @@ An authentic Nintendo Game Boy (DMG/CGB) Pong game written in pure SM83 assembly
 
 - **State Machine Architecture**: Clean separation between Splash Screen, In-Game Gameplay, and Game Over / Victory states.
 - **Single-Player vs AI**: Smooth player paddle controls paired with a reactive AI opponent.
-- **Physics & Kinematics**:
-  - Sub-pixel ball movement and bounding-box collision detection.
-  - Directional deflection off paddles depending on impact location.
-  - Arena wall bounce physics and serve delay timers.
+- **Dynamic Physics & Kinematics**:
+  - Base velocity floor (1 px/frame) ensuring the ball never moves slower than baseline.
+  - Dynamic paddle momentum: moving paddles accelerate returns (+1 speed), while stationary paddle blocks dampen and slow down the ball (-1 speed).
+  - Near-paddle wall ricochet boost: bouncing off walls within 20px of the paddle front grants an extra acceleration boost.
+  - Multi-zone paddle deflection angles (upper, center, lower thirds).
+  - Arena wall bounce reflections and serve delay timers.
 - **Hardware-Accurate Game Boy Graphics & Memory**:
   - Fast OAM DMA transfer routine executing out of High RAM (HRAM).
   - 2BPP tile data and background tilemap management using `rgbgfx`.
