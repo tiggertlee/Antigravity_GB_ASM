@@ -7,6 +7,7 @@
 INCLUDE "hardware.inc"
 INCLUDE "memory.inc"
 INCLUDE "graphics.inc"
+INCLUDE "sound.inc"
 
 SECTION "GameStateRoutines", ROM0
 
@@ -293,6 +294,7 @@ UpdateBallPhysics:
     cpl
     inc a
     ld [wBallDY], a
+    call PlaySoundWall
     jr .checkPaddles
 
 .checkBottomWall:
@@ -307,6 +309,7 @@ UpdateBallPhysics:
     cpl
     inc a
     ld [wBallDY], a
+    call PlaySoundWall
 
 .checkPaddles:
     ; --------------------------------------------------------------------------
@@ -339,6 +342,7 @@ UpdateBallPhysics:
     jp nc, .checkGoals                  ; Ball Top > AI Bottom (No collision)
 
     ; --- Collision with AI Paddle Detected ---
+    call PlaySoundPaddle
     ld a, AI_X - 8
     ld [wBallX], a                      ; Snap ball to paddle front
     ld a, -1
@@ -395,6 +399,7 @@ UpdateBallPhysics:
     jp nc, .checkGoals                  ; Ball Top > Player Bottom (No collision)
 
     ; --- Collision with Player Paddle Detected ---
+    call PlaySoundPaddle
     ld a, PLAYER_X + 8
     ld [wBallX], a                      ; Snap ball to paddle front
     ld a, 1
@@ -437,6 +442,7 @@ UpdateBallPhysics:
     jr nc, .checkPlayerGoal
 
     ; --- AI Scored Point ---
+    call PlaySoundOut
     ld a, [wScoreAI]
     inc a
     ld [wScoreAI], a
@@ -478,6 +484,7 @@ UpdateBallPhysics:
     ret c                               ; Ball still in play
 
     ; --- Player Scored Point ---
+    call PlaySoundOut
     ld a, [wScorePlayer]
     inc a
     ld [wScorePlayer], a

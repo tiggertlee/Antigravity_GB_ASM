@@ -17,6 +17,10 @@ An authentic Nintendo Game Boy (DMG/CGB) Pong game written in pure SM83 assembly
   - 2BPP tile data and background tilemap management using `rgbgfx`.
   - VBlank interrupt-driven rendering, joypad polling, and HUD updates.
   - Memory-safe WRAM variable layout and VRAM access routines.
+- **APU Sound Effects System**:
+  - Crisp high-pitch pulse beep on paddle deflection (Channel 1 ~880 Hz).
+  - Mellow low-pitch pulse boop on wall reflections (Channel 1 ~260 Hz).
+  - Harsh 7-bit LFSR noise buzzer on out-of-bounds goals (Channel 4).
 
 ---
 
@@ -37,6 +41,8 @@ Antigravity_GB_ASM/
 │   ├── gameover.asm       # Game over screen, winner announcement, restart logic
 │   ├── graphics.asm       # VRAM/OAM graphics copy and LCD control routines
 │   ├── graphics.inc       # Tile indices, palette constants, and sprite equates
+│   ├── sound.asm          # APU audio driver and sound effect routines
+│   ├── sound.inc          # Sound system equates and pitch constants
 │   ├── memory.asm         # Memory zeroing and OAM DMA routine loader
 │   ├── memory.inc         # WRAM and HRAM variable declarations
 │   └── hardware.inc       # Standard Game Boy hardware register definitions
