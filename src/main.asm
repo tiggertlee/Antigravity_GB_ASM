@@ -154,9 +154,9 @@ SystemInit:
     call InitSound
 
     ; --------------------------------------------------------------------------
-    ; 9. Set Initial State
+    ; 9. Set Initial Boot State (Studio Splash Screen)
     ; --------------------------------------------------------------------------
-    ld a, STATE_SPLASH
+    ld a, STATE_STUDIO
     ld [wGameState], a
     ld a, 1
     ld [wStateNeedsInit], a
@@ -193,6 +193,12 @@ MainLoop:
 
     ; Execute Init routine based on current state
     ld a, [wGameState]
+    cp STATE_STUDIO
+    jr nz, .checkSplashInit
+    call InitStudio
+    jr .dispatchState
+
+.checkSplashInit:
     cp STATE_SPLASH
     jr nz, .checkGameInit
     call InitSplash
@@ -212,6 +218,12 @@ MainLoop:
 .dispatchState:
     ; Execute per-frame Update routine for current state
     ld a, [wGameState]
+    cp STATE_STUDIO
+    jr nz, .notStudio
+    call UpdateStudio
+    jr MainLoop
+
+.notStudio:
     cp STATE_SPLASH
     jr nz, .notSplash
     call UpdateSplash

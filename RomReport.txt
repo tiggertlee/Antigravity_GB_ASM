@@ -4,7 +4,7 @@
 Generated for:      build/AIPongGB.gb
 Toolchain:          RGBDS (rgbasm / rgblink / rgbfix / rgbgfx v0.8.0)
 Target Platform:    Nintendo Game Boy (DMG / CGB Compatible)
-Date:               2026-08-22
+Date:               2026-08-24
 
 ================================================================================
 1. HEADER & CARTRIDGE METADATA
@@ -25,12 +25,12 @@ Global Checksum:    Passed (Validated by rgbfix)
 ================================================================================
 Memory Region        Used (Bytes)    Free (Bytes)    Total (Bytes)    Usage %
 --------------------------------------------------------------------------------
-ROM Bank 0 ($0000)    8,173 B         8,211 B        16,384 B         49.88%
+ROM Bank 0 ($0000)   11,401 B         4,983 B        16,384 B         69.59%
 ROM Bank 1 ($4000)        0 B        16,384 B        16,384 B          0.00%
 --------------------------------------------------------------------------------
-Total ROM Space       8,173 B        24,595 B        32,768 B         24.94%
+Total ROM Space      11,401 B        21,367 B        32,768 B         34.79%
 --------------------------------------------------------------------------------
-Work RAM ($C000)        190 B         3,906 B         4,096 B          4.64%
+Work RAM ($C000)        191 B         3,905 B         4,096 B          4.66%
 High RAM ($FF80)         11 B           116 B           127 B          8.66%
 ================================================================================
 
@@ -44,61 +44,65 @@ $0040 - $0060     $0021          33 B   Hardware ISRs         VBlank, LCD, Timer
 $0061 - $00F6     $0096         150 B   SplashState           Title state init/update
 $00F7 - $00FE     $0008           8 B   GameStrings           In-game HUD string literals
 $0100 - $014F     $0050          80 B   Header                Nintendo logo & cart header
-$0150 - $0210     $00C1         193 B   SystemInit            Bootloader, RAM zero, main loop
-$0211 - $10A8     $0E98       3,736 B   SplashGraphicsData    2BPP Logo Tiles & 20x18 Tilemap
-$10A9 - $148D     $03E5         997 B   GameStateRoutines     Pong physics, AI, HUD, sprites
-$148E - $178D     $0300         768 B   TileData              In-game 8x8 font, court & sprites
-$178E - $190D     $0180         384 B   MusicSongData_Lose    "Death March" 64-step song data
-$190E - $1A8D     $0180         384 B   MusicSongData_Win     "Victory Bounce" 64-step song data
-$1A8E - $1C0D     $0180         384 B   MusicSongData_Splash  "Neon Surge" 64-step song data
-$1C0E - $1D76     $0169         361 B   MusicEngine           Multi-track chiptune player
-$1D77 - $1E7C     $0106         262 B   GameOverState         Win/Loss state, menu, cursor
-$1E7D - $1F81     $0105         261 B   EngineCore            VBlank, OAM DMA, Joypad, Draw
-$1F82 - $1FFF     $007E         126 B   SoundRoutines         APU init & SFX (beep, boop, buzz)
-$2000 - $202D     $002E          46 B   GameOverStrings       Menu and banner string literals
-$202E - $203F     $0012          18 B   GraphicsRoutines      VRAM tile copy routines
+$0150 - $0222     $00D3         211 B   SystemInit            Bootloader, RAM zero, main loop
+$0223 - $10BA     $0E98       3,736 B   SplashGraphicsData    2BPP Logo Tiles & 20x18 Tilemap
+$10BB - $1CD2     $0C18       3,096 B   StudioGraphicsData    TornMedia 2BPP Tiles & Tilemap
+$1CD3 - $20B7     $03E5         997 B   GameStateRoutines     Pong physics, AI, HUD, sprites
+$20B8 - $23B7     $0300         768 B   TileData              In-game 8x8 font, court & sprites
+$23B8 - $2537     $0180         384 B   MusicSongData_Lose    "Death March" 64-step song data
+$2538 - $26B7     $0180         384 B   MusicSongData_Win     "Victory Bounce" 64-step song data
+$26B8 - $2837     $0180         384 B   MusicSongData_Splash  "Neon Surge" 64-step song data
+$2838 - $29A0     $0169         361 B   MusicEngine           Multi-track chiptune player
+$29A1 - $2AA6     $0106         262 B   GameOverState         Win/Loss state, menu, cursor
+$2AA7 - $2BAB     $0105         261 B   EngineCore            VBlank, OAM DMA, Joypad, Draw
+$2BAC - $2C29     $007E         126 B   SoundRoutines         APU init & SFX (beep, boop, buzz)
+$2C2A - $2C9B     $0072         114 B   StudioState           Studio splash screen init/update
+$2C9C - $2CC9     $002E          46 B   GameOverStrings       Menu and banner string literals
+$2CCA - $2CDB     $0012          18 B   GraphicsRoutines      VRAM tile copy routines
 --------------------------------------------------------------------------------
-Total ROM0 Used:  $1FFD       8,173 Bytes (49.88% of Bank 0)
-Free Space:       $2013       8,211 Bytes (50.12% of Bank 0)
+Total ROM0 Used:  $2CDB      11,401 Bytes (69.59% of Bank 0)
+Free Space:       $1377       4,983 Bytes (30.41% of Bank 0)
 
 ================================================================================
 4. CATEGORICAL ROM RESOURCE USAGE
 ================================================================================
 Category                              Bytes (Dec)    Bytes (Hex)    % of Used ROM
 --------------------------------------------------------------------------------
-1. Graphics & Assets                   4,522 B         $11AA            55.33%
-   - Splash Logo & Tilemap (Pong.png)  3,736 B         $0E98            45.71%
-   - Gameplay & Font Tiles (48 tiles)    768 B         $0300             9.40%
-   - Graphics Loader Routines             18 B         $0012             0.22%
+1. Graphics & Assets                   7,618 B         $1DC2            66.82%
+   - Title Logo & Tilemap (Pong.png)   3,736 B         $0E98            32.77%
+   - Studio Intro Logo (TornMedia.png) 3,096 B         $0C18            27.16%
+   - Gameplay & Font Tiles (48 tiles)    768 B         $0300             6.74%
+   - Graphics Loader Routines             18 B         $0012             0.16%
 
-2. Audio System (Music & SFX)          1,639 B         $0667            20.05%
-   - "Neon Surge" Splash Song Data       384 B         $0180             4.70%
-   - "Victory Bounce" Win Song Data      384 B         $0180             4.70%
-   - "Death March" Lose Song Data        384 B         $0180             4.70%
-   - Music Player Engine                 361 B         $0169             4.42%
-   - Sound FX Driver & APU Init          126 B         $007E             1.54%
+2. Audio System (Music & SFX)          1,639 B         $0667            14.38%
+   - "Neon Surge" Splash Song Data       384 B         $0180             3.37%
+   - "Victory Bounce" Win Song Data      384 B         $0180             3.37%
+   - "Death March" Lose Song Data        384 B         $0180             3.37%
+   - Music Player Engine                 361 B         $0169             3.17%
+   - Sound FX Driver & APU Init          126 B         $007E             1.11%
 
-3. Gameplay Engine & Kinematics          997 B         $03E5            12.20%
-   - Ball Physics & Deflections          402 B         $0192             4.92%
-   - AI Opponent Logic                   124 B         $007C             1.52%
-   - Player Paddle Control                53 B         $0035             0.65%
-   - Sprite OAM Renderer                 112 B         $0070             1.37%
-   - Game Loop & State Init              306 B         $0132             3.74%
+3. Gameplay Engine & Kinematics          997 B         $03E5             8.74%
+   - Ball Physics & Deflections          402 B         $0192             3.53%
+   - AI Opponent Logic                   124 B         $007C             1.09%
+   - Player Paddle Control                53 B         $0035             0.46%
+   - Sprite OAM Renderer                 112 B         $0070             0.98%
+   - Game Loop & State Init              306 B         $0132             2.68%
 
-4. System Core & Engine Infrastructure   551 B         $0227             6.74%
-   - SystemInit, RAM Zero & Main Loop    193 B         $00C1             2.36%
-   - Hardware Vectors & RSTs              97 B         $0061             1.19%
-   - OAM DMA, Joypad Polling, VBlank     261 B         $0105             3.19%
+4. System Core & Engine Infrastructure   569 B         $0239             4.99%
+   - SystemInit, RAM Zero & Main Loop    211 B         $00D3             1.85%
+   - Hardware Vectors & RSTs              97 B         $0061             0.85%
+   - OAM DMA, Joypad Polling, VBlank     261 B         $0105             2.29%
 
-5. Menu & State Machines                 412 B         $019C             5.04%
-   - GameOver State & Interactive Menu   262 B         $0106             3.21%
-   - Splash Screen State & Prompt        150 B         $0096             1.84%
+5. Menu & State Machines                 526 B         $020E             4.61%
+   - GameOver State & Interactive Menu   262 B         $0106             2.30%
+   - Title / Splash Screen State         150 B         $0096             1.32%
+   - Studio Splash Screen State          114 B         $0072             1.00%
 
-6. String Literals & Constants            52 B         $0034             0.64%
-   - In-Game HUD Text                      8 B         $0008             0.10%
-   - Game Over Text & Menu Labels         44 B         $002C             0.54%
+6. String Literals & Constants            52 B         $0034             0.46%
+   - In-Game HUD Text                      8 B         $0008             0.07%
+   - Game Over Text & Menu Labels         44 B         $002C             0.39%
 --------------------------------------------------------------------------------
-Total:                                 8,173 B         $1FFD           100.00%
+Total:                                11,401 B         $2CDB           100.00%
 
 ================================================================================
 5. RAM ALLOCATION BREAKDOWN
@@ -107,36 +111,37 @@ Location        Size    Variable Name       Purpose
 --------------------------------------------------------------------------------
 Work RAM ($C000 - $CFFF, 4 KB Total):
   $C000-$C09F   160 B   wShadowOAM          Shadow OAM sprite buffer (40 x 4B)
-  $C0A0           1 B   wGameState          Active state ID (Splash/Game/GameOver)
+  $C0A0           1 B   wGameState          Active state ID (Studio/Splash/Game/GameOver)
   $C0A1           1 B   wStateNeedsInit     State transition initialization flag
   $C0A2           1 B   wFrameCounter       Monotonic 60 Hz frame counter
-  $C0A3           1 B   wJoyHeld            Currently held joypad buttons
-  $C0A4           1 B   wJoyPressed         Newly pressed joypad buttons (edge)
-  $C0A5           1 B   wJoyPrev            Previous frame joypad state
-  $C0A6           1 B   wPlayerY            Player paddle vertical screen coordinate
-  $C0A7           1 B   wAIY                AI paddle vertical screen coordinate
-  $C0A8           1 B   wPlayerMoving       Player moving flag (for ball acceleration)
-  $C0A9           1 B   wAIMoving           AI moving flag (for ball acceleration)
-  $C0AA           1 B   wBallX              Ball horizontal screen coordinate
-  $C0AB           1 B   wBallY              Ball vertical screen coordinate
-  $C0AC           1 B   wBallDX             Ball horizontal velocity (-3..-1, +1..+3)
-  $C0AD           1 B   wBallDY             Ball vertical velocity (-2..+2)
-  $C0AE           1 B   wBallSpeed          Current ball speed magnitude (1..3)
-  $C0AF           1 B   wServeTimer         Countdown freeze frames before ball serve
-  $C0B0           1 B   wScorePlayer        Player score (0 - 11)
-  $C0B1           1 B   wScoreAI            AI opponent score (0 - 11)
-  $C0B2           1 B   wWinner             Match winner identifier
-  $C0B3           1 B   wScoreUpdateFlag    VBlank score HUD redraw signal
-  $C0B4           1 B   wMenuSelection      Game Over menu option (Play Again/Finish)
-  $C0B5           1 B   wRNGSeed            PRNG pseudo-random seed
-  $C0B6           1 B   wMusicPlaying       Music playback active flag
-  $C0B7           1 B   wMusicTick          Music step tick countdown timer
-  $C0B8           1 B   wMusicStep          Current step in song sequence (0..63)
-  $C0B9           1 B   wMusicSongID        Active song identifier
-  $C0BA           1 B   wMusicTempo         Active song speed (frames per step)
-  $C0BB           1 B   wMusicLength        Active song length in steps
-  $C0BC-$C0BD     2 B   wMusicSongPtr       16-bit ROM pointer to song table
-  $C0BE-$CFFF  3906 B   [EMPTY]             Available Work RAM
+  $C0A3           1 B   wStudioTimer        Countdown timer for initial studio splash (frames)
+  $C0A4           1 B   wJoyHeld            Currently held joypad buttons
+  $C0A5           1 B   wJoyPressed         Newly pressed joypad buttons (edge)
+  $C0A6           1 B   wJoyPrev            Previous frame joypad state
+  $C0A7           1 B   wPlayerY            Player paddle vertical screen coordinate
+  $C0A8           1 B   wAIY                AI paddle vertical screen coordinate
+  $C0A9           1 B   wPlayerMoving       Player moving flag (for ball acceleration)
+  $C0AA           1 B   wAIMoving           AI moving flag (for ball acceleration)
+  $C0AB           1 B   wBallX              Ball horizontal screen coordinate
+  $C0AC           1 B   wBallY              Ball vertical screen coordinate
+  $C0AD           1 B   wBallDX             Ball horizontal velocity (-3..-1, +1..+3)
+  $C0AE           1 B   wBallDY             Ball vertical velocity (-2..+2)
+  $C0AF           1 B   wBallSpeed          Current ball speed magnitude (1..3)
+  $C0B0           1 B   wServeTimer         Countdown freeze frames before ball serve
+  $C0B1           1 B   wScorePlayer        Player score (0 - 11)
+  $C0B2           1 B   wScoreAI            AI opponent score (0 - 11)
+  $C0B3           1 B   wWinner             Match winner identifier
+  $C0B4           1 B   wScoreUpdateFlag    VBlank score HUD redraw signal
+  $C0B5           1 B   wMenuSelection      Game Over menu option (Play Again/Finish)
+  $C0B6           1 B   wRNGSeed            PRNG pseudo-random seed
+  $C0B7           1 B   wMusicPlaying       Music playback active flag
+  $C0B8           1 B   wMusicTick          Music step tick countdown timer
+  $C0B9           1 B   wMusicStep          Current step in song sequence (0..63)
+  $C0BA           1 B   wMusicSongID        Active song identifier
+  $C0BB           1 B   wMusicTempo         Active song speed (frames per step)
+  $C0BC           1 B   wMusicLength        Active song length in steps
+  $C0BD-$C0BE     2 B   wMusicSongPtr       16-bit ROM pointer to song table
+  $C0BF-$CFFF  3905 B   [EMPTY]             Available Work RAM
 
 High RAM ($FF80 - $FFFE, 127 Bytes Total):
   $FF80           1 B   hVBlankFlag         VBlank ISR synchronization flag

@@ -23,9 +23,10 @@ wShadowOAM::            ds 40 * 4   ; 160-byte buffer for Sprite OAM DMA transfe
 SECTION "GameVariables", WRAM0
 
 ; Engine State
-wGameState::            ds 1        ; Current active state (STATE_SPLASH, STATE_GAME, etc.)
+wGameState::            ds 1        ; Current active state (STATE_STUDIO, STATE_SPLASH, etc.)
 wStateNeedsInit::       ds 1        ; Set to 1 when state has transitioned and needs setup
 wFrameCounter::         ds 1        ; Monotonic 8-bit frame counter (increments every VBlank)
+wStudioTimer::          ds 1        ; Countdown timer for initial studio splash (frames)
 
 ; Joypad Input Buffers
 wJoyHeld::              ds 1        ; Buttons currently held down (1 = pressed)

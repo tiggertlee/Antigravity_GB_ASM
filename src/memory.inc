@@ -8,13 +8,15 @@ DEF MEMORY_INC EQU 1
 ; ------------------------------------------------------------------------------
 ; Game State Identifiers
 ; ------------------------------------------------------------------------------
-DEF STATE_SPLASH        EQU 0   ; Title & Splash screen state
-DEF STATE_GAME          EQU 1   ; Main Pong gameplay state
-DEF STATE_GAMEOVER      EQU 2   ; Match result and replay menu state
+DEF STATE_STUDIO        EQU 0   ; Studio Splash screen (TornMedia intro on boot)
+DEF STATE_SPLASH        EQU 1   ; Title & Start screen state (Pong)
+DEF STATE_GAME          EQU 2   ; Main Pong gameplay state
+DEF STATE_GAMEOVER      EQU 3   ; Match result and replay menu state
 
 ; ------------------------------------------------------------------------------
-; Match & Gameplay Configuration Constants
+; Studio & Match Timing Configuration
 ; ------------------------------------------------------------------------------
+DEF STUDIO_DURATION_FRAMES EQU 180 ; 3 seconds @ 60 FPS for Studio splash
 DEF WINNING_SCORE       EQU 11  ; First player to 11 points wins the match
 DEF SERVE_DELAY_FRAMES  EQU 45  ; Freeze frames before ball launches after point
 

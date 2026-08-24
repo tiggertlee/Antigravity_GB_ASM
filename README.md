@@ -6,7 +6,8 @@ An authentic Nintendo Game Boy (DMG/CGB) Pong game written in pure SM83 assembly
 
 ## 🎮 Features & Technical Highlights
 
-- **State Machine Architecture**: Clean separation between Splash Screen, In-Game Gameplay, and Game Over / Victory states.
+- **State Machine Architecture**: Clean 4-state lifecycle separating Studio Splash Screen (initial boot intro), Title / Start Screen, In-Game Gameplay, and Game Over / Victory states.
+- **Studio Intro Splash Screen**: Displays the custom studio logo (`gfx/TornMedia.png`) on initial ROM boot for 3 seconds (or skipped with Start/A) before proceeding to the Title Screen. Returning from match finish skips the intro and returns straight to Title.
 - **Single-Player vs Tuned AI**: Responsive human paddle controls paired with a beatable AI opponent featuring a mid-court vision horizon (`X >= 76`) and an 8px deadzone for natural, human-like reaction dynamics.
 - **Dynamic Physics & Kinematics**:
   - Base velocity floor (1 px/frame) ensuring the ball never moves slower than baseline.
